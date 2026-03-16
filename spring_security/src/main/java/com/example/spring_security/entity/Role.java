@@ -11,13 +11,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "roles")
 public class Role {
     @Id
-    @Column(name = "role_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "role_name", unique = true, nullable = false, length = 50)
-    private String roleName;
+    @Enumerated(EnumType.STRING)
+    private RoleName roleName;
 }

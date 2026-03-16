@@ -1,4 +1,4 @@
-package com.example.spring_security.service.impl;
+package com.example.spring_security.security.principle;
 
 import com.example.spring_security.entity.User;
 import com.example.spring_security.repository.UserRepository;
@@ -9,21 +9,24 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
-public class UserDetailServiceImpl implements UserDetailsService {
+public class UserDetailServiceCustom implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                user.getRoles().stream()
-                        .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
-                        .toList()
-        );
+        List<SimpleGrantedAuthority> list = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getRoleName().name()))
+                .toList();
+        return UserDetailCustom.builder()
+                .username(user.getEmail())
+                .password(user.getPassword())
+                .authorities(list)
+                .build();
     }
 }
