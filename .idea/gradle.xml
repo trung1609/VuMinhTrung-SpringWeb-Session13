@@ -1,17 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+<<<<<<< HEAD
   <component name="GradleMigrationSettings" migrationVersion="1" />
+=======
+>>>>>>> b9ab6094b1bfc177cbf203efae5a581076cc85a8
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/spring_security" />
+<<<<<<< HEAD
         <option name="gradleJvm" value="17" />
+=======
+        <option name="gradleJvm" value="#JAVA_HOME" />
+>>>>>>> b9ab6094b1bfc177cbf203efae5a581076cc85a8
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/spring_security" />
           </set>
         </option>
+<<<<<<< HEAD
         <option name="resolveExternalAnnotations" value="true" />
+=======
+>>>>>>> b9ab6094b1bfc177cbf203efae5a581076cc85a8
       </GradleProjectSettings>
     </option>
   </component>
