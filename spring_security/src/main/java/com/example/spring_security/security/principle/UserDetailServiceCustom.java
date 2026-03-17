@@ -20,13 +20,10 @@ public class UserDetailServiceCustom implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-        List<SimpleGrantedAuthority> list = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getRoleName().name()))
-                .toList();
-        return UserDetailCustom.builder()
-                .username(user.getEmail())
+        return UserPrincipal.builder()
+                .username(user.getUsername())
                 .password(user.getPassword())
-                .authorities(list)
+                .authorities(List.of(new SimpleGrantedAuthority(user.getRole())))
                 .build();
     }
 }

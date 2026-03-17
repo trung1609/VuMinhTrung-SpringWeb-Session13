@@ -21,18 +21,10 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "full_name", length = 70)
-    private String fullName;
+    private String username;
 
-    @Column(name = "email", unique = true)
-    private String email;
+    private String role;
 
-    @Column(name = "phone", length = 15, unique = true)
-    private String phone;
+    private Boolean enabled;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    Set<Role> roles;
 }

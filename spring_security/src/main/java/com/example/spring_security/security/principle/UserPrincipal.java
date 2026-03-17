@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 @Builder
-public class UserDetailCustom implements UserDetails {
+public class UserPrincipal implements UserDetails {
 
     private String username;
     private String password;

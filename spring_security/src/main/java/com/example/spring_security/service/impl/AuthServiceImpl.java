@@ -2,11 +2,8 @@ package com.example.spring_security.service.impl;
 
 import com.example.spring_security.dto.request.LoginRequest;
 import com.example.spring_security.dto.request.UserRegister;
-import com.example.spring_security.entity.Role;
-import com.example.spring_security.entity.RoleName;
 import com.example.spring_security.entity.User;
 import com.example.spring_security.exception.ResourceConflictException;
-import com.example.spring_security.repository.RoleRepository;
 import com.example.spring_security.repository.UserRepository;
 import com.example.spring_security.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
