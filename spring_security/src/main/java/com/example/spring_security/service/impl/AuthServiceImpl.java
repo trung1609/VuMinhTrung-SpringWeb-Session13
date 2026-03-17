@@ -54,19 +54,15 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public User login(LoginRequest loginRequest) throws Exception {
         try {
-            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                    loginRequest.getEmail(), loginRequest.getPassword()
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
             );
-
-            Authentication authentication = authenticationManager.authenticate(token);
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            return userRepository.findByUsername(loginRequest.getEmail())
-                    .orElseThrow(() -> new NoSuchElementException("User not found with email: " + loginRequest.getEmail()));
-        } catch (AuthenticationException ex) {
-            throw new Exception("Invalid email or password");
+            return userRepository.findByUsername(loginRequest.getUsername())
+                    .orElseThrow(() -> new NoSuchElementException("User not found with username: " + loginRequest.getUsername()));
+        } catch (AuthenticationException e) {
+            throw new ResourceConflictException("Invalid username or password");
         }
-
     }
 
 }
