@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -15,9 +16,8 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRegister {
-    @NotBlank(message = "Email is required")
-    @Email
-    private String email;
+    @NotBlank(message = "Username is required")
+    private String username;
 
     @NotBlank(message = "Password is required")
     private String password;
@@ -25,10 +25,5 @@ public class UserRegister {
     @NotBlank(message = "Full name is required")
     private String fullName;
 
-    @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be 10 digits")
-    private String phone;
-
-
-    private Set<RoleName> roles;
+    private String role;
 }

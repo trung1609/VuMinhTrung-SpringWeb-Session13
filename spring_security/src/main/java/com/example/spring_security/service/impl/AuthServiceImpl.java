@@ -25,8 +25,6 @@ public class AuthServiceImpl implements AuthService {
     private UserRepository userRepository;
 
     @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -34,21 +32,22 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public User registerUser(UserRegister userRegister) throws ResourceConflictException {
-        if (userRepository.existsByEmail(userRegister.getEmail())) {
-            throw new ResourceConflictException("Email is already in use: " + userRegister.getEmail());
+        if(userRepository.findByUsername(userRegister.getUsername()).isPresent()) {
+            throw new ResourceConflictException("Username is already taken");
         }
 
-        if (userRepository.existsByPhone(userRegister.getPhone())) {
-            throw new ResourceConflictException("Phone is already in use: " + userRegister.getPhone());
-        }
 
         User user = new User();
-        user.setEmail(userRegister.getEmail());
+        user.setUsername(userRegister.getUsername());
         user.setPassword(passwordEncoder.encode(userRegister.getPassword()));
-        user.setRoles(mapRoleStringToRole(userRegister.getRoles()));
         user.setFullName(userRegister.getFullName());
-        user.setPhone(userRegister.getPhone());
 
+        if (userRegister.getRole() == null || userRegister.getRole().isEmpty() ) {
+            user.setRole("USER");
+        }else {
+            user.setRole(userRegister.getRole());
+        }
+        user.setEnabled(true);
         return userRepository.save(user);
     }
 
@@ -62,7 +61,7 @@ public class AuthServiceImpl implements AuthService {
             Authentication authentication = authenticationManager.authenticate(token);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            return userRepository.findByEmail(loginRequest.getEmail())
+            return userRepository.findByUsername(loginRequest.getEmail())
                     .orElseThrow(() -> new NoSuchElementException("User not found with email: " + loginRequest.getEmail()));
         } catch (AuthenticationException ex) {
             throw new Exception("Invalid email or password");
@@ -70,24 +69,4 @@ public class AuthServiceImpl implements AuthService {
 
     }
 
-    private Set<Role> mapRoleStringToRole(Set<RoleName> roles) {
-        Set<Role> roleSet = new HashSet<>();
-        if (roles != null && !roles.isEmpty()) {
-            roles.forEach(role -> {
-                switch (role) {
-                    case ROLE_ADMIN:
-                        roleSet.add(roleRepository.findByRoleName(role).orElseThrow(() -> new NoSuchElementException("Role not found: " + role)));
-                        break;
-                    case ROLE_USER:
-                        roleSet.add(roleRepository.findByRoleName(role).orElseThrow(() -> new NoSuchElementException("Role not found: " + role)));
-                        break;
-                    default:
-                        throw new NoSuchElementException("Role not found: " + role);
-                }
-            });
-        } else {
-            roleSet.add(roleRepository.findByRoleName(RoleName.ROLE_USER).orElseThrow(() -> new NoSuchElementException("Role not found: ROLE_USER")));
-        }
-        return roleSet;
-    }
 }
