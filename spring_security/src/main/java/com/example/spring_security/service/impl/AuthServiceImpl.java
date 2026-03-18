@@ -1,10 +1,14 @@
 package com.example.spring_security.service.impl;
 
+import com.example.spring_security.dto.LoginResponse;
 import com.example.spring_security.dto.request.LoginRequest;
 import com.example.spring_security.dto.request.UserRegister;
 import com.example.spring_security.entity.User;
 import com.example.spring_security.exception.ResourceConflictException;
 import com.example.spring_security.repository.UserRepository;
+import com.example.spring_security.security.jwt.JwtProvider;
+import com.example.spring_security.security.principle.UserDetailServiceCustom;
+import com.example.spring_security.security.principle.UserPrincipal;
 import com.example.spring_security.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,9 +33,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private JwtProvider jwtProvider;
 
     @Override
-    public User registerUser(UserRegister userRegister) throws ResourceConflictException {
+    public String registerUser(UserRegister userRegister) throws ResourceConflictException {
         if(userRepository.findByUsername(userRegister.getUsername()).isPresent()) {
             throw new ResourceConflictException("Username is already taken");
         }
@@ -48,21 +54,32 @@ public class AuthServiceImpl implements AuthService {
             user.setRole(userRegister.getRole());
         }
         user.setEnabled(true);
-        return userRepository.save(user);
+        userRepository.save(user);
+        return "User registered successfully";
     }
 
     @Override
-    public User login(LoginRequest loginRequest) throws Exception {
+    public LoginResponse login(LoginRequest loginRequest) throws Exception {
+        Authentication authentication = null;
         try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getUsername(),
+                            loginRequest.getPassword()
+                    )
             );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            return userRepository.findByUsername(loginRequest.getUsername())
-                    .orElseThrow(() -> new NoSuchElementException("User not found with username: " + loginRequest.getUsername()));
-        } catch (AuthenticationException e) {
+        }catch (AuthenticationException e) {
             throw new ResourceConflictException("Invalid username or password");
         }
+
+        UserPrincipal userDetails = (UserPrincipal) authentication.getPrincipal();
+        String token = jwtProvider.generateToken(userDetails.getUsername());
+
+        return LoginResponse.builder()
+                .username(userDetails.getUsername())
+                .role(userDetails.getAuthorities().stream().findFirst().orElseThrow(() -> new NoSuchElementException("No role found")).getAuthority())
+                .token(token)
+                .build();
     }
 
 }
