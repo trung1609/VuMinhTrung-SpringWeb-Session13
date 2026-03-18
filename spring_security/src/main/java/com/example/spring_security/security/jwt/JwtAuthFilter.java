@@ -2,6 +2,7 @@ package com.example.spring_security.security.jwt;
 
 import com.example.spring_security.security.principle.UserDetailServiceCustom;
 import com.example.spring_security.security.principle.UserPrincipal;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,12 +29,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String token = getTokenFromRequest(request);
-        if (token != null && jwtProvider.validateToken(token)){
-            String username = jwtProvider.getUsernameFromToken(token);
-            UserPrincipal userPrincipal = (UserPrincipal) userDetailServiceCustom.loadUserByUsername(username);
-            Authentication authentication = new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            String token = getTokenFromRequest(request);
+            if (token != null && jwtProvider.validateToken(token)) {
+                String username = jwtProvider.getUsernameFromToken(token);
+                UserPrincipal userPrincipal = (UserPrincipal) userDetailServiceCustom.loadUserByUsername(username);
+                Authentication authentication = new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (ExpiredJwtException e) {
+            request.setAttribute("exception", "EXPIRED_TOKEN");
+        } catch (Exception e) {
+            request.setAttribute("exception", e.getMessage());
         }
         filterChain.doFilter(request, response);
     }

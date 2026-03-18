@@ -1,6 +1,8 @@
 package com.example.spring_security.security.principle;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserPrincipal implements UserDetails {
 
     private String username;
